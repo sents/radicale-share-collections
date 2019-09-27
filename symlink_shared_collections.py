@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from argparse import ArgumentParser
-from os import path, scandir, symlink
+from os import path, scandir, symlink, unlink
 import radicale
 
 
@@ -16,7 +16,8 @@ def symlink_shared_collections(storepath, rights):
     users = visible_subdirs(storepath)
     for owner in users:
         for collection in visible_subdirs(path.join(storepath, owner)):
-            collection_path = path.join(storepath, owner, collection)
+            collection_dir = path.join(storepath, owner, collection)
+            collection_path = path.join(owner,collection)
             for user in users:
                 has_read = rights.authorized(user, collection_path, "r")
                 destination = path.join(storepath, user, collection)
@@ -24,10 +25,10 @@ def symlink_shared_collections(storepath, rights):
                     if path.exists(destination):
                         continue
                     else:
-                        symlink(collection_path, destination)
+                        symlink(collection_dir, destination)
                 else:
                     if path.exists(destination) and path.islink(destination):
-                        os.unlink(destination)
+                        unlink(destination)
 
 
 def main():
@@ -38,12 +39,12 @@ def main():
     parser.add_argument("config", help="radicale config")
     args = parser.parse_args()
 
-    config = radicale.config.load(args.config)
+    config = radicale.config.load([args.config])
     storepath = path.join(config.get("storage", "filesystem_folder"),
                           "collection-root")
     radicale_users = visible_subdirs(storepath)
     logger = radicale.log.start("radicale", config.get("logging", "config"))
-    rights = radicale.rights.load(configuration, logger)
+    rights = radicale.rights.load(config, logger)
     symlink_shared_collections(storepath, rights)
 
 
