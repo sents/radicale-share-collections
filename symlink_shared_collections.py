@@ -1,13 +1,15 @@
 #!/usr/bin/python3
 
+from argparse import ArgumentParser
 from os import path, scandir, symlink
 import radicale
 
 
 def visible_subdirs(path):
-    return [p.name
-            for p in scandir(path)
-            if not p.name.startswith(".") and p.is_dir()]
+    return [
+        p.name for p in scandir(path)
+        if not p.name.startswith(".") and p.is_dir()
+    ]
 
 
 def symlink_shared_collections(storepath, rights):
@@ -29,7 +31,14 @@ def symlink_shared_collections(storepath, rights):
 
 
 def main():
-    config = radicale.config.load(["/etc/radicale/config"])
+    parser = ArgumentParser(
+        """Hack to make shared radicale collections visible
+        to every user who has read access to the collection."""
+    )
+    parser.add_argument("config", help="radicale config")
+    args = parser.parse_args()
+
+    config = radicale.config.load(args.config)
     storepath = path.join(config.get("storage", "filesystem_folder"),
                           "collection-root")
     radicale_users = visible_subdirs(storepath)
