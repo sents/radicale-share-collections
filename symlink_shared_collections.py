@@ -16,8 +16,8 @@ def symlink_shared_collections(storepath, rights):
     users = visible_subdirs(storepath)
     for owner in users:
         for collection in visible_subdirs(path.join(storepath, owner)):
-            collection_dir = path.join(storepath, owner, collection)
-            collection_path = path.join(owner,collection)
+            collection_path = path.join(owner, collection)
+            collection_dir = path.join(storepath, collection_path)
             for user in users:
                 has_read = rights.authorized(user, collection_path, "r")
                 destination = path.join(storepath, user, collection)
@@ -27,7 +27,7 @@ def symlink_shared_collections(storepath, rights):
                     else:
                         symlink(collection_dir, destination)
                 else:
-                    if path.exists(destination) and path.islink(destination):
+                    if path.islink(destination):
                         unlink(destination)
 
 
