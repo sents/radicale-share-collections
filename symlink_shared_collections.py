@@ -8,7 +8,7 @@ import radicale
 def visible_subdirs(path):
     return [
         p.name for p in scandir(path)
-        if not p.name.startswith(".") and p.is_dir()
+        if not p.name.startswith(".") and p.is_dir() and not p.is_symlink()
     ]
 
 
