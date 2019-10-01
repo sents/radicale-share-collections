@@ -13,12 +13,12 @@ def visible_subdirs(path):
 
 
 def symlink_shared_collections(storepath, rights):
-    users = visible_subdirs(storepath)
+    users = set(visible_subdirs(storepath))
     for owner in users:
         for collection in visible_subdirs(path.join(storepath, owner)):
             collection_path = path.join(owner, collection)
             collection_dir = path.join(storepath, collection_path)
-            for user in users:
+            for user in users.difference(owner):
                 has_read = rights.authorized(user, collection_path, "r")
                 destination = path.join(storepath, user, collection)
                 if has_read:
