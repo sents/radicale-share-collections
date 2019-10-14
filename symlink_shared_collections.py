@@ -18,7 +18,9 @@ def symlink_shared_collections(storepath, rights, owner, collection, users):
     collection_dir = path.join(storepath, collection_path)
     for user in users.difference({owner}):
         has_read = rights.authorized(user, collection_path, "r")
-        destination = path.join(storepath, user, owner + "-" + collection)
+        destination = path.join(
+            storepath, user, "from" + "-" + owner + "-" + collection
+        )
         if has_read:
             if path.exists(destination):
                 continue
