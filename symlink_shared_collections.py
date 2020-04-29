@@ -42,8 +42,8 @@ def delete_broken_symlinks(collection_path):
 
 def manage_symlinks(storepath, rights, collections, users):
     for owner in collections:
+        delete_broken_symlinks(path.join(storepath, owner))
         for collection in visible_subdirs(path.join(storepath, owner)):
-            delete_broken_symlinks(path.join(storepath, owner, collection))
             symlink_shared_collections(storepath, rights, owner, collection, users)
 
 
