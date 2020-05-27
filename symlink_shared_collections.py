@@ -16,8 +16,9 @@ def visible_subdirs(path):
 def symlink_shared_collections(storepath, rights, owner, collection, users):
     collection_path = path.join(owner, collection)
     collection_dir = path.join(storepath, collection_path)
+    collection_path = radicale.pathutils.sanitize_path(collection_path)
     for user in users.difference({owner}):
-        has_read = rights.authorized(user, collection_path, "r")
+        has_read = "r" in rights.authorization(user, collection_path)
         destination = path.join(
             storepath, user, "from" + "-" + owner + "-" + collection
         )
@@ -74,10 +75,11 @@ def main():
     )
     args = parser.parse_args()
 
-    config = radicale.config.load([args.config])
-    storepath = path.join(config.get("storage", "filesystem_folder"), "collection-root")
-    logger = radicale.log.start("radicale", config.get("logging", "config"))
-    rights = radicale.rights.load(config, logger)
+    configuration = radicale.config.load([(args.config, True)])
+    storepath = path.join(
+        configuration.get("storage", "filesystem_folder"), "collection-root"
+    )
+    rights = radicale.rights.load(configuration)
     primary_collections = set(visible_subdirs(storepath))
     if args.users is None:
         users = primary_collections
