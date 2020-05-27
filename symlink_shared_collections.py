@@ -32,12 +32,15 @@ def symlink_shared_collections(storepath, rights, owner, collection, users):
 
 
 def delete_broken_symlinks(collection_path):
-    links = filter(path.islink, listdir(collection_path))
+    links = [
+        path.join(collection_path, link)
+        for link in listdir(collection_path)
+        if path.islink(path.join(collection_path, link))
+    ]
     for link in links:
-        linkpath = path.join(collection_path, link)
         # check if symlink is broken then unlink it
         if path.lexists(link) and not path.exists(link):
-            unlink(linkpath)
+            unlink(link)
 
 
 def manage_symlinks(storepath, rights, collections, users):
@@ -53,14 +56,22 @@ def main():
         to every user who has read access to the collection."""
     )
     parser.add_argument("config", help="radicale config")
-    parser.add_argument("-u", "--users", default=None,
-                        help="""
+    parser.add_argument(
+        "-u",
+        "--users",
+        default=None,
+        help="""
                         Users for which to run the script; If not specified the script
-    is run for all users.""")
-    parser.add_argument("-c", "--collections", default=None,
-                        help="""
+    is run for all users.""",
+    )
+    parser.add_argument(
+        "-c",
+        "--collections",
+        default=None,
+        help="""
                         Collections for which to run the script; If not specified the script
-    is run on all collections.""")
+    is run on all collections.""",
+    )
     args = parser.parse_args()
 
     config = radicale.config.load([args.config])
