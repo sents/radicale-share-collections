@@ -1,0 +1,12 @@
+[Unit]
+Description=Symlink readable Radicale collections for each user
+Documentation=https://github.com/sents/radicale-share-collections
+After=radicale.service
+
+[Service]
+Type=oneshot
+User=radicale
+Group=radicale
+WorkingDirectory=/var/lib/radicale/collections/
+NoNewPrivileges=yes
+ExecStart=/var/lib/radicale/.local/bin/symlink_shared_collections.py /etc/radicale/config

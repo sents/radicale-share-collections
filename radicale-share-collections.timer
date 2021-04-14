@@ -1,0 +1,9 @@
+[Unit]
+Description=Timer for radicale-share-collections.service
+
+[Timer]
+OnActiveSec=5s
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target
