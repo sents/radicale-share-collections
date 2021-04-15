@@ -17,7 +17,7 @@ def symlink_shared_collections(storepath, rights, owner, collection, users):
     collection_path = path.join(owner, collection)
     collection_dir = path.join(storepath, collection_path)
     for user in users.difference({owner}):
-        has_read = rights.authorized(user, collection_path, "r")
+        has_read = 'r' in rights.authorization(user, "/" + collection_path)
         destination = path.join(
             storepath, user, "from" + "-" + owner + "-" + collection
         )
@@ -47,46 +47,56 @@ def manage_symlinks(storepath, rights, collections, users):
     for owner in collections:
         delete_broken_symlinks(path.join(storepath, owner))
         for collection in visible_subdirs(path.join(storepath, owner)):
-            symlink_shared_collections(storepath, rights, owner, collection, users)
+            symlink_shared_collections(storepath,
+                                       rights,
+                                       owner,
+                                       collection,
+                                       users)
 
 
 def main():
     parser = ArgumentParser(
         """Hack to make shared radicale collections visible
-        to every user who has read access to the collection."""
+to every user who has read access to the collection.
+"""
     )
-    parser.add_argument("config", help="radicale config")
+    parser.add_argument("config", help="path to Radicale config")
     parser.add_argument(
         "-u",
         "--users",
         default=None,
         help="""
-                        Users for which to run the script; If not specified the script
-    is run for all users.""",
+Users for which to run the script; If not specified,
+the script is run for all users.""",
     )
     parser.add_argument(
         "-c",
         "--collections",
         default=None,
         help="""
-                        Collections for which to run the script; If not specified the script
-    is run on all collections.""",
+Collections for which to run the script; If not specified the script is run on
+all collections.""",
     )
     args = parser.parse_args()
 
-    config = radicale.config.load([args.config])
-    storepath = path.join(config.get("storage", "filesystem_folder"), "collection-root")
-    logger = radicale.log.start("radicale", config.get("logging", "config"))
-    rights = radicale.rights.load(config, logger)
+    config = radicale.config.load([(args.config, False)])
+    storepath = path.join(config.get("storage",
+                                     "filesystem_folder"),
+                          "collection-root")
+    rights = radicale.rights.load(config)
     primary_collections = set(visible_subdirs(storepath))
     if args.users is None:
         users = primary_collections
     else:
-        users = set(args.users.strip(",").split(","))
+        users = set(args.users.strip(",").split(",")).union(
+            primary_collections
+        )
     if args.collections is None:
         collections = primary_collections
     else:
-        collections = set(args.collections.strip(",").split(","))
+        collections = set(args.collections.strip(",").split(",")).union(
+            primary_collections
+        )
     manage_symlinks(storepath, rights, collections, users)
 
 

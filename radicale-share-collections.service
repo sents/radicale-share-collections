@@ -9,4 +9,4 @@ User=radicale
 Group=radicale
 WorkingDirectory=/var/lib/radicale/collections/
 NoNewPrivileges=yes
-ExecStart=/var/lib/radicale/.local/bin/symlink_shared_collections.py /etc/radicale/config
+ExecStart=/var/lib/radicale/.local/bin/radicale_share_collections /etc/radicale/config
