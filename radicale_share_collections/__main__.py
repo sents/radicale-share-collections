@@ -17,18 +17,12 @@ def symlink_shared_collections(storepath, rights, owner, collection, users):
     collection_path = path.join(owner, collection)
     collection_dir = path.join(storepath, collection_path)
     for user in users.difference({owner}):
-        has_read = 'r' in rights.authorization(user, "/" + collection_path)
-        destination = path.join(
-            storepath, user, "from" + "-" + owner + "-" + collection
-        )
-        if has_read:
-            if path.exists(destination):
-                continue
-            else:
-                symlink(collection_dir, destination)
-        else:
-            if path.islink(destination):
-                unlink(destination)
+        has_read = 'r' in rights.authorization(user, f"/{collection_path}")
+        destination = path.join(storepath, user, f"from-{owner}-{collection}")
+        if has_read and not path.exists(destination):
+            symlink(collection_dir, destination)
+        elif not has_read and path.islink(destination):
+            unlink(destination)
 
 
 def delete_broken_symlinks(collection_path):
