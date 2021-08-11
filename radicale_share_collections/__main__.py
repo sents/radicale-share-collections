@@ -32,15 +32,11 @@ def symlink_shared_collections(storepath, rights, owner, collection, users):
 
 
 def delete_broken_symlinks(collection_path):
-    links = [
-        path.join(collection_path, link)
-        for link in listdir(collection_path)
-        if path.islink(path.join(collection_path, link))
-    ]
-    for link in links:
-        # check if symlink is broken then unlink it
-        if path.lexists(link) and not path.exists(link):
-            unlink(link)
+    # find broken symlinks and unlink them
+    with scandir(collection_path) as dirit:
+        for link in dirit:
+            if link.is_symlink() and not path.exists(link):
+                unlink(link.path)
 
 
 def manage_symlinks(storepath, rights, collections, users):
