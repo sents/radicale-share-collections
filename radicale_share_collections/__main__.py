@@ -88,13 +88,13 @@ all collections.""",
     if args.users is None:
         users = primary_collections
     else:
-        users = set(args.users.strip(",").split(",")).union(
+        users = set(args.users.strip(",").split(",")).intersection(
             primary_collections
         )
     if args.collections is None:
         collections = primary_collections
     else:
-        collections = set(args.collections.strip(",").split(",")).union(
+        collections = set(args.collections.strip(",").split(",")).intersection(
             primary_collections
         )
     manage_symlinks(storepath, rights, collections, users)
